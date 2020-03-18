@@ -16,14 +16,20 @@ public class GameController : MonoBehaviour
     private int reduceLimitBy;
     private int score;
     private bool goalReached;
+    private int sizeRows;
+    private int sizeColms;
+
+    public Button startBtn;
 
     void Start()
     {
         generator = GetComponent<MazeConstructor>();
-        StartNewGame();
+        //StartNewGame();
+        sizeRows = 13;
+        sizeColms = 15;
     }
 
-    private void StartNewGame()
+    public void StartNewGame()
     {
         timeLimit = 80;
         reduceLimitBy = 5;
@@ -31,13 +37,14 @@ public class GameController : MonoBehaviour
 
         score = 0;
         scoreLabel.text = score.ToString();
+        startBtn.gameObject.SetActive(false);
 
         StartNewMaze();
     }
 
     private void StartNewMaze()
     {
-        generator.GenerateNewMaze(13, 15, OnStartTrigger, OnGoalTrigger);
+        generator.GenerateNewMaze(sizeRows, sizeColms, OnStartTrigger, OnGoalTrigger);
 
         float x = generator.startCol * generator.hallWidth;
         float y = 1;
@@ -71,8 +78,8 @@ public class GameController : MonoBehaviour
             timeLabel.text = "TIME UP";
             player.enabled = false;
 
-            Invoke("StartNewGame", 4);
-        }
+            //Invoke("StartNewGame", 2);
+        }       
     }
 
     private void OnGoalTrigger(GameObject trigger, GameObject other)
@@ -92,8 +99,10 @@ public class GameController : MonoBehaviour
         {
             Debug.Log("Finish!");
             player.enabled = false;
+            sizeRows += 2;
+            sizeColms += 2;
 
-            Invoke("StartNewMaze", 4);
+            Invoke("StartNewMaze", 2);
         }
     }
 }
