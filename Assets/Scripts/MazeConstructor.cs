@@ -6,6 +6,9 @@ public class MazeConstructor : MonoBehaviour
     private MazeDataGenerator dataGenerator;
     private MazeMeshGenerator meshGenerator;
 
+    public GameObject wall;
+    public GameObject floor;
+
     [SerializeField] private Material mazeMat1;
     [SerializeField] private Material mazeMat2;
     [SerializeField] private Material startMat;
@@ -39,6 +42,15 @@ public class MazeConstructor : MonoBehaviour
         get; private set;
     }
     public int goalCol
+    {
+        get; private set;
+    }
+
+    public int enemyRow
+    {
+        get; private set;
+    }
+    public int enemyCol
     {
         get; private set;
     }
@@ -115,19 +127,32 @@ public class MazeConstructor : MonoBehaviour
 
     private void DisplayMaze()
     {
-        GameObject go = new GameObject();
-        go.transform.position = Vector3.zero;
-        go.name = "Procedural Maze";
-        go.tag = "Generated";
+        int[,] maze = data;
+        int rMax = maze.GetUpperBound(0);
+        int cMax = maze.GetUpperBound(1);
 
-        MeshFilter mf = go.AddComponent<MeshFilter>();
+        for (int i = rMax; i >= 0; i--)
+        {
+            for (int j = 0; j <= cMax; j++)
+            {
+                if (maze[i, j] != 0)
+                {
+                    GameObject go = Instantiate(wall);
+                    go.transform.position = Vector3.zero;
+                    go.name = "Procedural Maze";
+                    go.tag = "Generated";
+                    go.transform.position = new Vector3(i, 0, j);
+                }
+            }
+        }
+        /*MeshFilter mf = go.AddComponent<MeshFilter>();
         mf.mesh = meshGenerator.FromData(data);
 
         MeshCollider mc = go.AddComponent<MeshCollider>();
         mc.sharedMesh = mf.mesh;
 
         MeshRenderer mr = go.AddComponent<MeshRenderer>();
-        mr.materials = new Material[2] { mazeMat1, mazeMat2 };
+        mr.materials = new Material[2] { mazeMat1, mazeMat2 };*/
     }
 
     public void DisposeOldMaze()
@@ -172,8 +197,29 @@ public class MazeConstructor : MonoBehaviour
             {
                 if (maze[i, j] == 0)
                 {
-                    goalRow = i;
-                    goalCol = j;
+                    goalRow = j;
+                    goalCol = i;
+                    return;
+                }
+            }
+        }
+    }
+
+    private void FindEnemyPosition()
+    {
+        int[,] maze = data;
+        int rMax = maze.GetUpperBound(0);
+        int cMax = maze.GetUpperBound(1);
+
+        // loop top to bottom, left to right
+        for (int i = rMax; i >= 0; i--)
+        {
+            for(int j = 0; j <= cMax; j++)
+            {
+                if (maze[i, j] == 0)
+                {
+                    enemyRow = j;
+                    enemyCol = i;
                     return;
                 }
             }
