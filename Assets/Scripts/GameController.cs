@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class GameController : MonoBehaviour
 {
-    [SerializeField] private FpsMovement player;
+    [SerializeField] private Player player;
     [SerializeField] private Text timeLabel;
     [SerializeField] private Text scoreLabel;
 
@@ -44,7 +44,7 @@ public class GameController : MonoBehaviour
 
     private void StartNewMaze()
     {
-        generator.GenerateNewMaze(sizeRows, sizeColms, OnStartTrigger, OnGoalTrigger);
+        generator.GenerateNewMaze(sizeRows, sizeColms, OnStartTrigger, OnGoalTrigger, OnHealthTrigger);
 
         float x = generator.startCol * generator.hallWidth;
         float y = 1;
@@ -76,7 +76,7 @@ public class GameController : MonoBehaviour
         else
         {
             timeLabel.text = "TIME UP";
-            player.enabled = false;
+            //player.enabled = false;
 
             //Invoke("StartNewGame", 2);
         }       
@@ -104,5 +104,16 @@ public class GameController : MonoBehaviour
 
             Invoke("StartNewMaze", 2);
         }
+    }
+
+    private void OnHealthTrigger(GameObject trigger, GameObject other)
+    {
+        Debug.Log("Picked Up health");
+        goalReached = true;
+
+        score += 1;
+        scoreLabel.text = score.ToString();
+
+        Destroy(trigger);
     }
 }

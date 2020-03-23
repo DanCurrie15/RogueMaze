@@ -8,11 +8,11 @@ public class MazeConstructor : MonoBehaviour
 
     public GameObject wall;
     public GameObject floor;
+    public GameObject enemy;
 
-    [SerializeField] private Material mazeMat1;
-    [SerializeField] private Material mazeMat2;
     [SerializeField] private Material startMat;
     [SerializeField] private Material treasureMat;
+    [SerializeField] private Material healthMat;
 
     public int[,] data
     {
@@ -45,12 +45,11 @@ public class MazeConstructor : MonoBehaviour
     {
         get; private set;
     }
-
-    public int enemyRow
+    public int healthRow
     {
         get; private set;
     }
-    public int enemyCol
+    public int healthCol
     {
         get; private set;
     }
@@ -69,7 +68,7 @@ public class MazeConstructor : MonoBehaviour
     }
 
     public void GenerateNewMaze(int sizeRows, int sizeCols,
-        TriggerEventHandler startCallback = null, TriggerEventHandler goalCallback = null)
+        TriggerEventHandler startCallback = null, TriggerEventHandler goalCallback = null, TriggerEventHandler healthCallback = null)
     {
         if (sizeRows % 2 == 0 && sizeCols % 2 == 0)
         {
@@ -82,6 +81,7 @@ public class MazeConstructor : MonoBehaviour
 
         FindStartPosition();
         FindGoalPosition();
+        FindHealthPosition();
 
         // store values used to generate this mesh
         hallWidth = meshGenerator.width;
@@ -91,6 +91,9 @@ public class MazeConstructor : MonoBehaviour
 
         PlaceStartTrigger(startCallback);
         PlaceGoalTrigger(goalCallback);
+        PlaceHealthTrigger(healthCallback);
+
+        FindAndPlaceEnemies();
     }
 
     void OnGUI()
@@ -101,8 +104,8 @@ public class MazeConstructor : MonoBehaviour
         }
 
         int[,] maze = data;
-        int rMax = maze.GetUpperBound(0);
-        int cMax = maze.GetUpperBound(1);
+        int rMax = maze.GetUpperBound(0); // 0 for # of rows
+        int cMax = maze.GetUpperBound(1); // 1 for # of columns
 
         string msg = "";
 
@@ -145,14 +148,6 @@ public class MazeConstructor : MonoBehaviour
                 }
             }
         }
-        /*MeshFilter mf = go.AddComponent<MeshFilter>();
-        mf.mesh = meshGenerator.FromData(data);
-
-        MeshCollider mc = go.AddComponent<MeshCollider>();
-        mc.sharedMesh = mf.mesh;
-
-        MeshRenderer mr = go.AddComponent<MeshRenderer>();
-        mr.materials = new Material[2] { mazeMat1, mazeMat2 };*/
     }
 
     public void DisposeOldMaze()
@@ -205,23 +200,39 @@ public class MazeConstructor : MonoBehaviour
         }
     }
 
-    private void FindEnemyPosition()
+    private void FindHealthPosition()
     {
         int[,] maze = data;
         int rMax = maze.GetUpperBound(0);
         int cMax = maze.GetUpperBound(1);
 
-        // loop top to bottom, left to right
-        for (int i = rMax; i >= 0; i--)
+        // loop bottom to top, right to left
+        for (int i = rMax; i > 0; i--)
         {
-            for(int j = 0; j <= cMax; j++)
+            for (int j = 0; j < cMax; j++)
             {
                 if (maze[i, j] == 0)
                 {
-                    enemyRow = j;
-                    enemyCol = i;
+                    healthRow = j;
+                    healthCol = i;
                     return;
                 }
+            }
+        }
+    }
+
+    private void FindAndPlaceEnemies()
+    {
+        int[,] maze = data;
+        int rMax = maze.GetUpperBound(0);
+        int cMax = maze.GetUpperBound(1);
+
+        for(int j = 0; j <= cMax; j++)
+        {
+            if (maze[Mathf.RoundToInt(rMax/2), j] == 0)
+            {
+                Debug.Log("Enemy row: " + Mathf.RoundToInt(rMax / 2) + ", column: " + j);
+                Instantiate(enemy, new Vector3(Mathf.RoundToInt(rMax / 2), 0, j), Quaternion.identity);
             }
         }
     }
@@ -229,9 +240,10 @@ public class MazeConstructor : MonoBehaviour
     private void PlaceStartTrigger(TriggerEventHandler callback)
     {
         GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        go.transform.position = new Vector3(startCol * hallWidth, .5f, startRow * hallWidth);
+        go.transform.position = new Vector3(startCol * hallWidth, -0.5f, startRow * hallWidth);
         go.name = "Start Trigger";
         go.tag = "Generated";
+        go.transform.localScale = new Vector3(1f, 0.5f, 1f);
 
         go.GetComponent<BoxCollider>().isTrigger = true;
         go.GetComponent<MeshRenderer>().sharedMaterial = startMat;
@@ -243,12 +255,28 @@ public class MazeConstructor : MonoBehaviour
     private void PlaceGoalTrigger(TriggerEventHandler callback)
     {
         GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        go.transform.position = new Vector3(goalCol * hallWidth, .5f, goalRow * hallWidth);
+        go.transform.position = new Vector3(goalCol * hallWidth, -0.5f, goalRow * hallWidth);
         go.name = "Treasure";
         go.tag = "Generated";
+        go.transform.localScale = new Vector3(1f, 0.5f, 1f);
 
         go.GetComponent<BoxCollider>().isTrigger = true;
         go.GetComponent<MeshRenderer>().sharedMaterial = treasureMat;
+
+        TriggerEventRouter tc = go.AddComponent<TriggerEventRouter>();
+        tc.callback = callback;
+    }
+
+    private void PlaceHealthTrigger(TriggerEventHandler callback)
+    {
+        GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        go.transform.position = new Vector3(healthCol * hallWidth, -0.5f, healthRow * hallWidth);
+        go.name = "Health";
+        go.tag = "Generated";
+        go.transform.localScale = new Vector3(1f, 0.5f, 1f);
+
+        go.GetComponent<BoxCollider>().isTrigger = true;
+        go.GetComponent<MeshRenderer>().sharedMaterial = healthMat;
 
         TriggerEventRouter tc = go.AddComponent<TriggerEventRouter>();
         tc.callback = callback;
