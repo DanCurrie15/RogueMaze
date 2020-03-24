@@ -47,7 +47,7 @@ public class GameController : MonoBehaviour
         generator.GenerateNewMaze(sizeRows, sizeColms, OnStartTrigger, OnGoalTrigger, OnHealthTrigger);
 
         float x = generator.startCol * generator.hallWidth;
-        float y = 1;
+        float y = player.transform.position.y;
         float z = generator.startRow * generator.hallWidth;
         player.transform.position = new Vector3(x, y, z);
 
