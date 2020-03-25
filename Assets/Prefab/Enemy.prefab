@@ -320,6 +320,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 195d27f1f020a418a8e25f73167dbfaf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  wanderRadius: 100
+  wanderTimer: 5
 --- !u!1 &631840562252278204
 GameObject:
   m_ObjectHideFlags: 0

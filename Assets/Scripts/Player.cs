@@ -8,10 +8,15 @@ public class Player : MonoBehaviour
 
     [SerializeField]
     private float speed;
+    private Quaternion rotateTo;
+    private Quaternion initialRotation;
+    private float timeToLerp;
+    private float timeToLerpBack;
     [SerializeField]
-    private float rotationSpeed;
+    private float lerpDuration;
 
     public bool playerAttacking;
+    public int playerHealth;
 
     private void Awake()
     {
@@ -25,16 +30,38 @@ public class Player : MonoBehaviour
 
     void Update()
     {
-        MoveCharacter();
-        RotateCharacter();
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            timeToLerp = 0f;
+            timeToLerpBack = 0f;
+            rotateTo = this.transform.rotation;
+            initialRotation = this.transform.rotation;
+            rotateTo *= Quaternion.Euler(0f, -90f, 0f);
+        }
 
         if (Input.GetKey(KeyCode.Space))
         {
-            playerAttacking = true;
+            if (timeToLerp < lerpDuration)
+            {
+                transform.rotation = Quaternion.Lerp(transform.rotation, rotateTo, timeToLerp/lerpDuration);
+                timeToLerp += Time.deltaTime;
+                Debug.Log("lerp time: " + timeToLerp);
+                playerAttacking = true;
+            }
+            else
+            {
+                transform.rotation = Quaternion.Lerp(rotateTo, initialRotation, timeToLerpBack / lerpDuration);
+                timeToLerpBack += Time.deltaTime;
+                Debug.Log("lerp time: " + timeToLerpBack);
+                playerAttacking = false;
+            }           
+            
         }
         else
         {
             playerAttacking = false;
+            MoveCharacter();
+            RotateCharacter();
         }
     }
 
@@ -57,9 +84,7 @@ public class Player : MonoBehaviour
         {
             if (Input.GetKey(KeyCode.Space))
             {
-                transform.LookAt(new Vector3(hit.point.x, transform.position.y, hit.point.z));
-                transform.rotation *= Quaternion.Euler(0, -90, 0);
-                //transform.rotation = Quaternion.Lerp(transform.rotation, transform.rotation *= Quaternion.Euler(0, -90, 0), Time.time * rotationSpeed);
+                return;
             }
             else
             {
