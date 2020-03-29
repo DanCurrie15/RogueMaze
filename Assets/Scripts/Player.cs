@@ -6,17 +6,18 @@ public class Player : MonoBehaviour
 {
     public static Player Instance;
 
-    [SerializeField]
-    private float speed;
+    [SerializeField] private float speed;
+    [SerializeField]private float lerpDuration;
+
     private Quaternion rotateTo;
     private Quaternion initialRotation;
     private float timeToLerp;
     private float timeToLerpBack;
-    [SerializeField]
-    private float lerpDuration;
 
     public bool playerAttacking;
     public int playerHealth;
+
+    [HideInInspector] public bool gameOn;
 
     private void Awake()
     {
@@ -26,42 +27,52 @@ public class Player : MonoBehaviour
     private void Start()
     {
         playerAttacking = false;
+        gameOn = true;
     }
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (gameOn)
         {
-            timeToLerp = 0f;
-            timeToLerpBack = 0f;
-            rotateTo = this.transform.rotation;
-            initialRotation = this.transform.rotation;
-            rotateTo *= Quaternion.Euler(0f, -90f, 0f);
-        }
-
-        if (Input.GetKey(KeyCode.Space))
-        {
-            if (timeToLerp < lerpDuration)
+            MoveCharacter();
+            if (Input.GetKeyDown(KeyCode.Space))
             {
-                transform.rotation = Quaternion.Lerp(transform.rotation, rotateTo, timeToLerp/lerpDuration);
-                timeToLerp += Time.deltaTime;
-                Debug.Log("lerp time: " + timeToLerp);
-                playerAttacking = true;
+                timeToLerp = 0f;
+                timeToLerpBack = 0f;
+                rotateTo = this.transform.rotation;
+                initialRotation = this.transform.rotation;
+                rotateTo *= Quaternion.Euler(0f, -90f, 0f);
             }
+
+            if (Input.GetKey(KeyCode.Space))
+            {
+                playerAttacking = true;
+                if (timeToLerp < lerpDuration)
+                {
+                    transform.rotation = Quaternion.Lerp(transform.rotation, rotateTo, timeToLerp / lerpDuration);
+                    timeToLerp += Time.deltaTime;
+                    //Debug.Log("lerp time: " + timeToLerp);                    
+                }
+                else
+                {
+                    transform.rotation = Quaternion.Lerp(rotateTo, initialRotation, timeToLerpBack / lerpDuration);
+                    timeToLerpBack += Time.deltaTime;
+                    //Debug.Log("lerp time: " + timeToLerpBack);
+                }
+            }
+
             else
             {
-                transform.rotation = Quaternion.Lerp(rotateTo, initialRotation, timeToLerpBack / lerpDuration);
-                timeToLerpBack += Time.deltaTime;
-                Debug.Log("lerp time: " + timeToLerpBack);
-                playerAttacking = false;
-            }           
+                playerAttacking = false;                
+                RotateCharacter();
+            }
             
         }
-        else
+
+        if (playerHealth < 1)
         {
-            playerAttacking = false;
-            MoveCharacter();
-            RotateCharacter();
+            gameOn = false;
+            GameController.Instance.GameOver();
         }
     }
 
@@ -82,15 +93,7 @@ public class Player : MonoBehaviour
 
         if (Physics.Raycast(ray, out hit, 100))
         {
-            if (Input.GetKey(KeyCode.Space))
-            {
-                return;
-            }
-            else
-            {
                 transform.LookAt(new Vector3(hit.point.x, transform.position.y, hit.point.z));
-            }
-            
         }
     }
 }

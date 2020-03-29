@@ -1,38 +1,45 @@
 ﻿using System;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(MazeConstructor))]
 
 public class GameController : MonoBehaviour
 {
+    public static GameController Instance;
+
     [SerializeField] private Player player;
     [SerializeField] private Text timeLabel;
     [SerializeField] private Text scoreLabel;
+    [SerializeField] private Text healthLabel;
 
     private MazeConstructor generator;
     private DateTime startTime;
     private int timeLimit;
-    private int reduceLimitBy;
     private int score;
     private bool goalReached;
     private int sizeRows;
     private int sizeColms;
 
     public Button startBtn;
+    public Button retryBtn;
+
+    private void Awake()
+    {
+        Instance = this;
+    }
 
     void Start()
     {
         generator = GetComponent<MazeConstructor>();
-        //StartNewGame();
         sizeRows = 13;
         sizeColms = 15;
     }
 
     public void StartNewGame()
     {
-        timeLimit = 80;
-        reduceLimitBy = 5;
+        timeLimit = 90;
         startTime = DateTime.Now;
 
         score = 0;
@@ -55,7 +62,6 @@ public class GameController : MonoBehaviour
         player.enabled = true;
 
         // restart timer
-        timeLimit -= reduceLimitBy;
         startTime = DateTime.Now;
     }
 
@@ -71,15 +77,13 @@ public class GameController : MonoBehaviour
 
         if (timeLeft > 0)
         {
-            timeLabel.text = timeLeft.ToString();
+            timeLabel.text = "TIME: " + timeLeft;
         }
-        else
+        if (!Player.Instance.gameOn)
         {
             timeLabel.text = "TIME UP";
-            //player.enabled = false;
-
-            //Invoke("StartNewGame", 2);
-        }       
+            GameOver();
+        }     
     }
 
     private void OnGoalTrigger(GameObject trigger, GameObject other)
@@ -88,9 +92,10 @@ public class GameController : MonoBehaviour
         goalReached = true;
 
         score += 1;
-        scoreLabel.text = score.ToString();
+        scoreLabel.text = "SCORE: " + score;
 
         Destroy(trigger);
+        Destroy(GameObject.FindGameObjectWithTag("Health"));
     }
 
     private void OnStartTrigger(GameObject trigger, GameObject other)
@@ -111,9 +116,26 @@ public class GameController : MonoBehaviour
         Debug.Log("Picked Up health");
         goalReached = true;
 
-        score += 1;
-        scoreLabel.text = score.ToString();
+        Player.Instance.playerHealth++;
+        UpdateHealthLabel();
 
         Destroy(trigger);
+        Destroy(GameObject.FindGameObjectWithTag("Treasure"));
+    }
+
+    public void UpdateHealthLabel()
+    {
+        healthLabel.text = "HEALTH: " + Player.Instance.playerHealth;
+    }
+
+    public void GameOver()
+    {
+        player.enabled = false;
+        retryBtn.gameObject.SetActive(true);
+    }
+
+    public void Retry()
+    {
+        SceneManager.LoadScene("Scene");
     }
 }

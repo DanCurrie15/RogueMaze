@@ -1,10 +1,11 @@
 ﻿using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
 
 public class MazeConstructor : MonoBehaviour
 {
     public bool showDebug;
     private MazeDataGenerator dataGenerator;
-    private MazeMeshGenerator meshGenerator;
 
     public GameObject wall;
     public GameObject floor;
@@ -57,7 +58,6 @@ public class MazeConstructor : MonoBehaviour
     void Awake()
     {
         dataGenerator = new MazeDataGenerator();
-        meshGenerator = new MazeMeshGenerator();
         // default to walls surrounding a single empty cell
         data = new int[,]
         {
@@ -84,8 +84,8 @@ public class MazeConstructor : MonoBehaviour
         FindHealthPosition();
 
         // store values used to generate this mesh
-        hallWidth = meshGenerator.width;
-        hallHeight = meshGenerator.height;
+        hallWidth = 1;
+        hallHeight = 1;
 
         DisplayMaze();
 
@@ -152,7 +152,11 @@ public class MazeConstructor : MonoBehaviour
 
     public void DisposeOldMaze()
     {
-        GameObject[] objects = GameObject.FindGameObjectsWithTag("Generated");
+        //GameObject[] objects = GameObject.FindGameObjectsWithTag("Generated");
+        List<GameObject> objects = new List<GameObject>(GameObject.FindGameObjectsWithTag("Generated"));
+        objects.Add(GameObject.FindGameObjectWithTag("Treasure"));
+        objects.Add(GameObject.FindGameObjectWithTag("Health"));
+
         foreach (GameObject go in objects)
         {
             Destroy(go);
@@ -231,7 +235,7 @@ public class MazeConstructor : MonoBehaviour
         {
             if (maze[Mathf.RoundToInt(rMax/2), j] == 0)
             {
-                Debug.Log("Enemy row: " + Mathf.RoundToInt(rMax / 2) + ", column: " + j);
+                //Debug.Log("Enemy row: " + Mathf.RoundToInt(rMax / 2) + ", column: " + j);
                 Instantiate(enemy, new Vector3(Mathf.RoundToInt(rMax / 2), 0, j), Quaternion.identity);
             }
         }
@@ -257,7 +261,7 @@ public class MazeConstructor : MonoBehaviour
         GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
         go.transform.position = new Vector3(goalCol * hallWidth, -0.5f, goalRow * hallWidth);
         go.name = "Treasure";
-        go.tag = "Generated";
+        go.tag = "Treasure";
         go.transform.localScale = new Vector3(1f, 0.5f, 1f);
 
         go.GetComponent<BoxCollider>().isTrigger = true;
@@ -272,7 +276,7 @@ public class MazeConstructor : MonoBehaviour
         GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
         go.transform.position = new Vector3(healthCol * hallWidth, -0.5f, healthRow * hallWidth);
         go.name = "Health";
-        go.tag = "Generated";
+        go.tag = "Health";
         go.transform.localScale = new Vector3(1f, 0.5f, 1f);
 
         go.GetComponent<BoxCollider>().isTrigger = true;
