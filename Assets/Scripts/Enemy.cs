@@ -10,20 +10,28 @@ public class Enemy : MonoBehaviour
 
     public GameObject deathParticles;
 
-    private Transform target;
     private NavMeshAgent agent;
     private float timer;
+    private float searchRadius;
 
     // Use this for initialization
     void OnEnable()
     {
         agent = GetComponent<NavMeshAgent>();
         timer = wanderTimer;
+        searchRadius = 5f;
     }
 
     // Update is called once per frame
     void Update()
     {
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position, searchRadius, LayerMask.GetMask("Player"));
+        if (hitColliders.Length > 0)
+        {
+            agent.SetDestination(hitColliders[0].gameObject.transform.position);
+            return;
+        }
+
         timer += Time.deltaTime;
 
         if (timer >= wanderTimer)
@@ -32,6 +40,8 @@ public class Enemy : MonoBehaviour
             agent.SetDestination(newPos);
             timer = 0;
         }
+
+        
     }
 
     public static Vector3 RandomNavSphere(Vector3 origin, float dist, int layermask)
@@ -59,7 +69,7 @@ public class Enemy : MonoBehaviour
                 Destroy(this.gameObject);
                 return;
             }
-            else if (collision.GetContact(i).otherCollider.gameObject.CompareTag("Player") && Player.Instance.playerAttacking == false)
+            else if (collision.GetContact(i).otherCollider.gameObject.CompareTag("Player"))
             {
                 Debug.Log("Enemy attacked");
                 Player.Instance.playerHealth--;

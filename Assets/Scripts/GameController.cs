@@ -13,6 +13,9 @@ public class GameController : MonoBehaviour
     [SerializeField] private Text timeLabel;
     [SerializeField] private Text scoreLabel;
     [SerializeField] private Text healthLabel;
+    [SerializeField] private Text spinLabel;
+    [SerializeField] private Text chargeLabel;
+    [SerializeField] private Text throwLabel;
 
     private MazeConstructor generator;
     private DateTime startTime;
@@ -23,6 +26,7 @@ public class GameController : MonoBehaviour
     private int sizeColms;
 
     public Button startBtn;
+    public GameObject titleLabel;
     public Button retryBtn;
 
     private void Awake()
@@ -43,8 +47,9 @@ public class GameController : MonoBehaviour
         startTime = DateTime.Now;
 
         score = 0;
-        scoreLabel.text = score.ToString();
+        scoreLabel.text = "SCORE: " + score;
         startBtn.gameObject.SetActive(false);
+        titleLabel.SetActive(false);
 
         StartNewMaze();
     }
@@ -96,6 +101,24 @@ public class GameController : MonoBehaviour
 
         Destroy(trigger);
         Destroy(GameObject.FindGameObjectWithTag("Health"));
+
+        if (score == 4)
+        {
+            Player.Instance.spinUnlocked = true;
+            spinLabel.text = "SPIN: Z";
+        }
+
+        if (score == 8)
+        {
+            Player.Instance.chargeUnlocked = true;
+            chargeLabel.text = "CHARGE: C";
+        }
+
+        if (score == 12)
+        {
+            Player.Instance.throwUnlocked = true;
+            throwLabel.text = "THROW: X";
+        }
     }
 
     private void OnStartTrigger(GameObject trigger, GameObject other)

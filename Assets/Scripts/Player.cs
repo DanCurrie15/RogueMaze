@@ -6,16 +6,24 @@ public class Player : MonoBehaviour
 {
     public static Player Instance;
 
+    public GameObject scythe;
+
     [SerializeField] private float speed;
-    [SerializeField]private float lerpDuration;
+    [SerializeField] private float lerpDuration;
+    [SerializeField] private float spinSpeed;
 
     private Quaternion rotateTo;
     private Quaternion initialRotation;
     private float timeToLerp;
     private float timeToLerpBack;
+    private Vector3 movingDirection;
 
     public bool playerAttacking;
+
     public int playerHealth;
+    public bool spinUnlocked;
+    public bool throwUnlocked;
+    public bool chargeUnlocked;
 
     [HideInInspector] public bool gameOn;
 
@@ -27,44 +35,81 @@ public class Player : MonoBehaviour
     private void Start()
     {
         playerAttacking = false;
+
+        spinUnlocked = false;
+        throwUnlocked = false;
+        spinUnlocked = false;
+
         gameOn = true;
     }
 
     void Update()
     {
         if (gameOn)
-        {
-            MoveCharacter();
+        {            
             if (Input.GetKeyDown(KeyCode.Space))
             {
                 timeToLerp = 0f;
                 timeToLerpBack = 0f;
                 rotateTo = this.transform.rotation;
                 initialRotation = this.transform.rotation;
-                rotateTo *= Quaternion.Euler(0f, -90f, 0f);
+                rotateTo *= Quaternion.Euler(0f, -160f, 0f);
             }
 
-            if (Input.GetKey(KeyCode.Space))
+            else if (Input.GetKey(KeyCode.Space))
             {
                 playerAttacking = true;
                 if (timeToLerp < lerpDuration)
                 {
                     transform.rotation = Quaternion.Lerp(transform.rotation, rotateTo, timeToLerp / lerpDuration);
-                    timeToLerp += Time.deltaTime;
-                    //Debug.Log("lerp time: " + timeToLerp);                    
+                    timeToLerp += Time.deltaTime;                  
                 }
                 else
                 {
                     transform.rotation = Quaternion.Lerp(rotateTo, initialRotation, timeToLerpBack / lerpDuration);
                     timeToLerpBack += Time.deltaTime;
-                    //Debug.Log("lerp time: " + timeToLerpBack);
                 }
+            }
+
+            else if (Input.GetKey(KeyCode.Z) && spinUnlocked)
+            {
+                playerAttacking = true;
+                transform.RotateAround(transform.position, -transform.up, Time.deltaTime * spinSpeed);               
+            }
+
+            else if (Input.GetKeyDown(KeyCode.C) && chargeUnlocked)
+            {
+                timeToLerp = 0f;
+                rotateTo = this.transform.rotation;
+                initialRotation = this.transform.rotation;
+                rotateTo *= Quaternion.Euler(0f, -90f, 0f);
+            }
+
+            else if (Input.GetKey(KeyCode.C) && chargeUnlocked)
+            {
+                playerAttacking = true;
+                if (timeToLerp < lerpDuration)
+                {
+                    transform.rotation = Quaternion.Lerp(transform.rotation, rotateTo, timeToLerp / lerpDuration);
+                    timeToLerp += Time.deltaTime;                  
+                }
+                transform.Translate(movingDirection * speed * 4 * Time.deltaTime, Space.World);
+            }
+
+            else if (Input.GetKeyDown(KeyCode.X) && throwUnlocked)
+            {
+                playerAttacking = true;
+            }
+
+            else if (Input.GetKeyUp(KeyCode.X) && throwUnlocked)
+            {
+
             }
 
             else
             {
                 playerAttacking = false;                
-                RotateCharacter();
+                MoveCharacter();
             }
             
         }
@@ -82,18 +127,12 @@ public class Player : MonoBehaviour
         float moveZ = Input.GetAxis("Vertical");
 
         Vector3 move = new Vector3(moveX, 0f, moveZ);
+        if (move != Vector3.zero)
+        {
+            transform.rotation = Quaternion.LookRotation(move);
+            movingDirection = move;
+        }        
 
         transform.Translate(move * speed * Time.deltaTime, Space.World);
-    }
-
-    private void RotateCharacter()
-    {
-        RaycastHit hit;
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-
-        if (Physics.Raycast(ray, out hit, 100))
-        {
-                transform.LookAt(new Vector3(hit.point.x, transform.position.y, hit.point.z));
-        }
     }
 }
