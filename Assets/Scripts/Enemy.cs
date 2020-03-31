@@ -8,7 +8,7 @@ public class Enemy : MonoBehaviour
     public float wanderRadius;
     public float wanderTimer;
 
-    public GameObject deathParticles;
+    public ParticleSystem deathParticles;
 
     private NavMeshAgent agent;
     private float timer;
@@ -60,24 +60,27 @@ public class Enemy : MonoBehaviour
     private void OnCollisionStay(Collision collision)
     {
         for (int i = 0; i < collision.contacts.Length; i++)
-        {      
-            Debug.Log("colliding with: " + collision.GetContact(i).otherCollider.gameObject.tag + " - is player attacking: " +Player.Instance.playerAttacking);
+        {        
+            //Debug.Log("colliding with: " + collision.GetContact(i).otherCollider.gameObject.tag + " - is player attacking: " +Player.Instance.playerAttacking);
             if (collision.GetContact(i).otherCollider.gameObject.CompareTag("scythe") && Player.Instance.playerAttacking == true)
             {
-                Debug.Log("Enemy hit");
-                Instantiate(deathParticles, this.gameObject.transform);
+                //Debug.Log("Enemy hit");
                 Destroy(this.gameObject);
                 return;
             }
             else if (collision.GetContact(i).otherCollider.gameObject.CompareTag("Player"))
             {
-                Debug.Log("Enemy attacked");
+                //Debug.Log("Enemy attacked");
                 Player.Instance.playerHealth--;
                 GameController.Instance.UpdateHealthLabel();
-                Instantiate(deathParticles, this.gameObject.transform);
                 Destroy(this.gameObject);
                 return;
             }
         }
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        Instantiate(deathParticles, this.gameObject.transform);
     }
 }

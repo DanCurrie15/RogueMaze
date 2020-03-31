@@ -235,7 +235,6 @@ public class MazeConstructor : MonoBehaviour
         {
             if (maze[Mathf.RoundToInt(rMax/2), j] == 0)
             {
-                //Debug.Log("Enemy row: " + Mathf.RoundToInt(rMax / 2) + ", column: " + j);
                 Instantiate(enemy, new Vector3(Mathf.RoundToInt(rMax / 2), 0, j), Quaternion.identity);
             }
         }

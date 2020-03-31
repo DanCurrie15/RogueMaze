@@ -93,7 +93,7 @@ public class GameController : MonoBehaviour
 
     private void OnGoalTrigger(GameObject trigger, GameObject other)
     {
-        Debug.Log("Goal!");
+        //Debug.Log("Goal!");
         goalReached = true;
 
         score += 1;
@@ -125,7 +125,7 @@ public class GameController : MonoBehaviour
     {
         if (goalReached)
         {
-            Debug.Log("Finish!");
+            //Debug.Log("Finish!");
             player.enabled = false;
             sizeRows += 2;
             sizeColms += 2;
@@ -136,7 +136,7 @@ public class GameController : MonoBehaviour
 
     private void OnHealthTrigger(GameObject trigger, GameObject other)
     {
-        Debug.Log("Picked Up health");
+        //Debug.Log("Picked Up health");
         goalReached = true;
 
         Player.Instance.playerHealth++;

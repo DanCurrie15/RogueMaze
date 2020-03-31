@@ -943,7 +943,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   activated: 0
-  rotationSpeed: 100
+  rotationSpeed: 500
 --- !u!1 &974588508
 GameObject:
   m_ObjectHideFlags: 0
@@ -1647,12 +1647,15 @@ MonoBehaviour:
   speed: 3
   lerpDuration: 0.1
   spinSpeed: 750
+  throwSpeed: 10
+  throwDuration: 0.5
   playerAttacking: 0
   playerHealth: 10
   spinUnlocked: 0
   throwUnlocked: 0
   chargeUnlocked: 0
   gameOn: 0
+  hasScythe: 0
 --- !u!54 &1773131084
 Rigidbody:
   m_ObjectHideFlags: 0

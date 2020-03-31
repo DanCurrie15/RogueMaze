@@ -11,7 +11,7 @@ public class ScytheController : MonoBehaviour
 
         if (activated)
         {
-            transform.localEulerAngles += Vector3.forward * rotationSpeed * Time.deltaTime;
+            transform.localEulerAngles += Vector3.up * rotationSpeed * Time.deltaTime;
         }
 
     }

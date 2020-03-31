@@ -322,7 +322,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   wanderRadius: 100
   wanderTimer: 5
-  deathParticles: {fileID: 1606691201914768, guid: 1a1b4456f5b484d13a177b470f3ae34b,
+  deathParticles: {fileID: 198290016997568480, guid: 1a1b4456f5b484d13a177b470f3ae34b,
     type: 3}
 --- !u!1 &631840562252278204
 GameObject:

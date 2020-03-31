@@ -9,17 +9,14 @@ public class DestroyByTime : MonoBehaviour {
 
 	void Start () {
 		startTime = Time.time;
-	}
-
-	private void OnEnable()
-	{
-		startTime = Time.time;
+		//Debug.Log("start particle effect");
 	}
 
 	void Update () {
 
 		if (Time.time > (lifetime + startTime)) {
-			gameObject.SetActive (false);
+			//Debug.Log("end particle effect");
+			Destroy(this.gameObject);
 		}
 	}
 }
